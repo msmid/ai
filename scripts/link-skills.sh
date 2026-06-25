@@ -1,38 +1,67 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Links all skills in the repository to ~/.claude/skills, so that
-# they can be used by the local Claude CLI.
+# Links all skills in the repository to tool-specific skill directories:
+#   ~/.claude/skills
+#   ~/.cursor/skills
+#   ~/.codex/skills
+#   ~/.config/opencode/skills
 
 REPO="$(cd "$(dirname "$0")/.." && pwd)"
-DEST="$HOME/.claude/skills"
+DESTS=(
+  "$HOME/.claude/skills"
+  "$HOME/.cursor/skills"
+  "$HOME/.codex/skills"
+  "$HOME/.config/opencode/skills"
+)
 
-# If ~/.claude/skills is a symlink that resolves into this repo, we'd end up
-# writing the per-skill symlinks back into the repo's own skills/ tree. Detect
-# and bail out instead of polluting the working copy.
-if [ -L "$DEST" ]; then
-  resolved="$(readlink -f "$DEST")"
-  case "$resolved" in
-    "$REPO"|"$REPO"/*)
-      echo "error: $DEST is a symlink into this repo ($resolved)." >&2
-      echo "Remove it (rm \"$DEST\") and re-run; the script will recreate it as a real dir." >&2
-      exit 1
-      ;;
-  esac
+if [[ -t 1 ]]; then
+  BOLD=$'\033[1m'
+  GRAY=$'\033[38;5;245m'
+  RESET=$'\033[0m'
+else
+  BOLD='' GRAY='' RESET=''
 fi
 
-mkdir -p "$DEST"
-
-find "$REPO/skills" -name SKILL.md -not -path '*/node_modules/*' -not -path '*/deprecated/*' -print0 |
-while IFS= read -r -d '' skill_md; do
-  src="$(dirname "$skill_md")"
-  name="$(basename "$src")"
-  target="$DEST/$name"
-
-  if [ -e "$target" ] && [ ! -L "$target" ]; then
-    rm -rf "$target"
+# If a destination is a symlink that resolves into this repo, we'd end up
+# writing the per-skill symlinks back into the repo's own skills/ tree. Detect
+# and bail out instead of polluting the working copy.
+guard_dest() {
+  local dest="$1"
+  if [ -L "$dest" ]; then
+    local resolved
+    resolved="$(readlink -f "$dest")"
+    case "$resolved" in
+      "$REPO"|"$REPO"/*)
+        echo "error: $dest is a symlink into this repo ($resolved)." >&2
+        echo "Remove it (rm \"$dest\") and re-run; the script will recreate it as a real dir." >&2
+        exit 1
+        ;;
+    esac
   fi
+}
 
-  ln -sfn "$src" "$target"
-  echo "linked $name -> $src"
+link_skills_to() {
+  local dest="$1"
+  find "$REPO/skills" -name SKILL.md -not -path '*/node_modules/*' -not -path '*/deprecated/*' -print0 |
+  while IFS= read -r -d '' skill_md; do
+    local src name target
+    src="$(dirname "$skill_md")"
+    name="$(basename "$src")"
+    target="$dest/$name"
+
+    if [ -e "$target" ] && [ ! -L "$target" ]; then
+      rm -rf "$target"
+    fi
+
+    ln -sfn "$src" "$target"
+    echo "${GRAY}  $name -> $src${RESET}"
+  done
+}
+
+for dest in "${DESTS[@]}"; do
+  guard_dest "$dest"
+  mkdir -p "$dest"
+  echo "${BOLD}${dest}${RESET}"
+  link_skills_to "$dest"
 done
