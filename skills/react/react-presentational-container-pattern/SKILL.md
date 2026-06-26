@@ -1,5 +1,5 @@
 ---
-name: presentational-container-pattern
+name: react-presentational-container-pattern
 description: Teaches the presentational/container pattern for separating view and logic. Use when you want to isolate data fetching and business logic from UI rendering for better testability and reuse.
 paths:
   - "**/*.tsx"
@@ -9,8 +9,8 @@ metadata:
   author: patterns.dev
   version: "1.1"
 related_skills:
-  - "hooks-pattern"
-  - "hoc-pattern"
+  - "react-hooks-pattern"
+  - "react-hoc-pattern"
 ---
 
 # Container/Presentational Pattern

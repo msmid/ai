@@ -1,5 +1,5 @@
 ---
-name: hoc-pattern
+name: react-hoc-pattern
 description: Teaches the Higher-Order Component (HOC) pattern for logic reuse. Use when you need to share cross-cutting concerns like authentication, logging, or data fetching across multiple components.
 paths:
   - "**/*.tsx"
@@ -9,8 +9,8 @@ metadata:
   author: patterns.dev
   version: "1.1"
 related_skills:
-  - "hooks-pattern"
-  - "render-props-pattern"
+  - "react-hooks-pattern"
+  - "react-render-props-pattern"
 ---
 
 # HOC Pattern

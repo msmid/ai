@@ -1,5 +1,5 @@
 ---
-name: render-props-pattern
+name: react-render-props-pattern
 description: Teaches the render props pattern for flexible component composition. Use when you need to share rendering logic between components by passing a function that returns JSX as a prop.
 paths:
   - "**/*.tsx"
@@ -9,8 +9,8 @@ metadata:
   author: patterns.dev
   version: "1.1"
 related_skills:
-  - "hooks-pattern"
-  - "hoc-pattern"
+  - "react-hooks-pattern"
+  - "react-hoc-pattern"
 ---
 
 # Render Props Pattern
